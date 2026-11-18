@@ -1,0 +1,324 @@
+```html
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>IGNOXPLAYZZ eSports — Free Fire Bermuda Tournaments</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Orbitron & Rajdhani for high-energy Esports typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;800;900&family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- QRCode.js for Real Scannable Dynamic UPI QR Codes -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+    <!-- Font Awesome for crisp gaming & UI icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        display: ['Orbitron', 'sans-serif'],
+                        gaming: ['Rajdhani', 'sans-serif'],
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        obsidian: '#08090d',
+                        carddark: '#11131c',
+                        crimson: '#ff2a55',
+                        amberfire: '#ff9d00',
+                        cyanglow: '#00f0ff',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #08090d;
+            color: #f3f4f6;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Custom Tactical Background Grid & Glow */
+        .esports-bg {
+            background-color: #08090d;
+            background-image: 
+                radial-gradient(circle at 15% 10%, rgba(255, 42, 85, 0.14) 0%, transparent 40%),
+                radial-gradient(circle at 85% 25%, rgba(0, 240, 255, 0.10) 0%, transparent 40%),
+                radial-gradient(circle at 50% 85%, rgba(255, 157, 0, 0.10) 0%, transparent 45%),
+                linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+            background-size: 100% 100%, 100% 100%, 100% 100%, 28px 28px, 28px 28px;
+        }
+
+        /* Neon Card Borders */
+        .neon-card {
+            background: linear-gradient(145deg, rgba(20, 23, 34, 0.92), rgba(12, 14, 22, 0.96));
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(12px);
+        }
+
+        .neon-card:hover {
+            border-color: rgba(255, 157, 0, 0.35);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #08090d;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #272b3f;
+            border-radius: 999px;
+        }
+
+        /* Pulse Glow Animation */
+        @keyframes firePulse {
+            0%, 100% { box-shadow: 0 0 12px rgba(255, 42, 85, 0.45); }
+            50% { box-shadow: 0 0 24px rgba(255, 157, 0, 0.7); }
+        }
+        .btn-fire {
+            background: linear-gradient(135deg, #ff2a55 0%, #ff7b00 100%);
+            animation: firePulse 3s infinite;
+        }
+        .btn-fire:active {
+            transform: scale(0.97);
+        }
+
+        /* QR Container styling so it scans cleanly on mobile screens */
+        #qr-canvas-box img, #qr-canvas-box canvas {
+            margin: 0 auto;
+            border-radius: 12px;
+            display: block !important;
+        }
+
+        /* Hide scrollbars on horizontal pill bars */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="esports-bg min-h-screen pb-24 selection:bg-crimson selection:text-white">
+
+    <!-- ==================== GLOBAL TOAST CONTAINER ==================== -->
+    <div id="toast-container" class="fixed top-4 right-4 left-4 md:left-auto md:w-96 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <!-- ==================== ADMIN PASSCODE MODAL ==================== -->
+    <div id="admin-auth-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/85 backdrop-blur-md p-4">
+        <div class="neon-card w-full max-w-sm rounded-2xl p-6 border border-crimson/50">
+            <div class="text-center mb-5">
+                <div class="w-14 h-14 mx-auto rounded-2xl bg-crimson/20 border border-crimson/40 flex items-center justify-center text-crimson text-2xl mb-3">
+                    <i class="fa-solid fa-shield-halved"></i>
+                </div>
+                <h3 class="font-display font-bold text-xl text-white">ORGANIZER ADMIN</h3>
+                <p class="text-xs text-gray-400 mt-1">Enter Admin PIN (Default: <span class="text-amber-400 font-bold">7676</span>)</p>
+            </div>
+            <input type="password" id="admin-pin-input" maxlength="6" placeholder="••••" class="w-full text-center tracking-[0.5em] font-display text-2xl bg-black/60 border border-gray-700 focus:border-crimson rounded-xl py-3 text-white outline-none mb-4">
+            <div class="flex gap-3">
+                <button onclick="closeAdminAuthModal()" class="flex-1 py-3 rounded-xl bg-gray-800 hover:bg-gray-700 text-gray-300 font-gaming font-bold uppercase tracking-wider">Cancel</button>
+                <button onclick="verifyAdminPin()" class="flex-1 py-3 rounded-xl btn-fire text-white font-gaming font-bold uppercase tracking-wider">Unlock Panel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== AUTHENTICATION SCREEN (NO GOOGLE LOGIN) ==================== -->
+    <div id="auth-screen" class="min-h-screen flex flex-col justify-center items-center p-4 relative">
+        <!-- Decorative Tactical SVG Background -->
+        <svg class="absolute top-6 left-6 w-24 h-24 text-crimson/15 pointer-events-none" viewBox="0 0 100 100" fill="currentColor">
+            <polygon points="50,5 95,27.5 95,72.5 50,95 5,72.5 5,27.5"/>
+        </svg>
+        <svg class="absolute bottom-10 right-6 w-32 h-32 text-cyanglow/10 pointer-events-none" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="3">
+            <circle cx="50" cy="50" r="40"/><line x1="50" y1="0" x2="50" y2="100"/><line x1="0" y1="50" x2="100" y2="50"/>
+        </svg>
+
+        <div class="w-full max-w-md neon-card rounded-3xl p-6 sm:p-8 border border-amber-500/30 relative z-10">
+            <!-- Brand Header -->
+            <div class="text-center mb-6">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-crimson/20 border border-crimson/40 text-crimson text-xs font-gaming font-bold uppercase tracking-widest mb-3">
+                    <i class="fa-solid fa-crosshairs"></i> Official Bermuda Arena
+                </div>
+                <h1 class="font-display font-black text-2xl sm:text-3xl bg-gradient-to-r from-amber-400 via-orange-500 to-crimson bg-clip-text text-transparent tracking-wide">
+                    IGNOXPLAYZZ eSports
+                </h1>
+                <p class="text-amber-300 font-gaming font-bold text-base mt-1">
+                    Welcome to IGNOXPLAYZZ eSports!
+                </p>
+            </div>
+
+            <!-- Login / Register Switch Tabs -->
+            <div class="grid grid-cols-2 bg-black/60 p-1 rounded-xl border border-gray-800 mb-6">
+                <button id="tab-register-btn" onclick="switchAuthTab('register')" class="py-2.5 rounded-lg font-gaming font-bold uppercase tracking-wider text-sm bg-gradient-to-r from-crimson to-orange-500 text-white shadow">
+                    New Player Register
+                </button>
+                <button id="tab-login-btn" onclick="switchAuthTab('login')" class="py-2.5 rounded-lg font-gaming font-bold uppercase tracking-wider text-sm text-gray-400 hover:text-white">
+                    Player Login
+                </button>
+            </div>
+
+            <!-- REGISTER FORM (Username, Full Name, DOB, Free Fire ID Name, 1 UPI ID, optional Referral) -->
+            <form id="register-form" onsubmit="handleRegister(event)" class="space-y-3.5">
+                <div>
+                    <label class="block text-xs font-gaming uppercase tracking-wider text-gray-400 mb-1">Username *</label>
+                    <div class="relative">
+                        <i class="fa-solid fa-user-astronaut absolute left-3.5 top-3.5 text-amber-400 text-sm"></i>
+                        <input type="text" id="reg-username" required placeholder="e.g. IgnoxKing99" class="w-full bg-black/60 border border-gray-700 focus:border-amber-400 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white outline-none">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-gaming uppercase tracking-wider text-gray-400 mb-1">Full Name *</label>
+                    <div class="relative">
+                        <i class="fa-solid fa-id-card absolute left-3.5 top-3.5 text-cyan-400 text-sm"></i>
+                        <input type="text" id="reg-fullname" required placeholder="Enter your full real name" class="w-full bg-black/60 border border-gray-700 focus:border-cyan-400 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white outline-none">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-gaming uppercase tracking-wider text-gray-400 mb-1">Date of Birth *</label>
+                        <input type="date" id="reg-dob" required class="w-full bg-black/60 border border-gray-700 focus:border-amber-400 rounded-xl px-3 py-2.5 text-sm text-white outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-gaming uppercase tracking-wider text-gray-400 mb-1">Free Fire ID Name *</label>
+                        <div class="relative">
+                            <i class="fa-solid fa-fire absolute left-3 top-3.5 text-crimson text-sm"></i>
+                            <input type="text" id="reg-ffname" required placeholder="In-Game Name" class="w-full bg-black/60 border border-gray-700 focus:border-crimson rounded-xl pl-9 pr-3 py-2.5 text-sm text-white outline-none">
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-gaming uppercase tracking-wider text-gray-400 mb-1">1 Registered UPI ID (For Prize Payouts) *</label>
+                    <div class="relative">
+                        <i class="fa-solid fa-indian-rupee-sign absolute left-3.5 top-3.5 text-emerald-400 text-sm"></i>
+                        <input type="text" id="reg-upi" required placeholder="yourname@okaxis / 9876543210@ybl" class="w-full bg-black/60 border border-gray-700 focus:border-emerald-400 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white outline-none">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-gaming uppercase tracking-wider text-gray-400 mb-1">Referral Code (Optional — ₹10 IGNO Bonus)</label>
+                    <input type="text" id="reg-ref" placeholder="Enter friend's referral code" class="w-full bg-black/60 border border-gray-700 focus:border-purple-400 rounded-xl px-4 py-2 text-sm text-white uppercase outline-none">
+                </div>
+
+                <button type="submit" class="w-full py-3.5 mt-2 rounded-xl btn-fire font-display font-bold text-sm uppercase tracking-wider text-white shadow-lg flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-gamepad"></i> Enter Bermuda Arena
+                </button>
+            </form>
+
+            <!-- LOGIN FORM (ONLY Free Fire ID Name & Username — NO Google Login) -->
+            <form id="login-form" onsubmit="handleLogin(event)" class="space-y-4 hidden">
+                <div class="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-xs text-amber-200">
+                    <i class="fa-solid fa-circle-info mr-1 text-amber-400"></i> Login directly using your registered <strong>Free Fire ID Name</strong> and <strong>Username</strong>.
+                </div>
+
+                <div>
+                    <label class="block text-xs font-gaming uppercase tracking-wider text-gray-400 mb-1">Free Fire ID Name *</label>
+                    <div class="relative">
+                        <i class="fa-solid fa-fire absolute left-3.5 top-3.5 text-crimson text-sm"></i>
+                        <input type="text" id="login-ffname" required placeholder="Enter your Free Fire ID Name" class="w-full bg-black/60 border border-gray-700 focus:border-crimson rounded-xl pl-10 pr-4 py-3 text-sm text-white outline-none">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-gaming uppercase tracking-wider text-gray-400 mb-1">Username *</label>
+                    <div class="relative">
+                        <i class="fa-solid fa-user absolute left-3.5 top-3.5 text-cyan-400 text-sm"></i>
+                        <input type="text" id="login-username" required placeholder="Enter your registered Username" class="w-full bg-black/60 border border-gray-700 focus:border-cyan-400 rounded-xl pl-10 pr-4 py-3 text-sm text-white outline-none">
+                    </div>
+                </div>
+
+                <button type="submit" class="w-full py-3.5 rounded-xl btn-fire font-display font-bold text-sm uppercase tracking-wider text-white shadow-lg flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-right-to-bracket"></i> Login to IGNOXPLAYZZ
+                </button>
+            </form>
+
+            <!-- Quick Demo / Admin Shortcut -->
+            <div class="mt-6 pt-4 border-t border-gray-800 flex items-center justify-between text-xs">
+                <button type="button" onclick="quickDemoLogin()" class="text-cyan-400 hover:text-cyan-300 font-gaming font-semibold uppercase tracking-wider">
+                    <i class="fa-solid fa-bolt mr-1"></i> Instant Demo Player
+                </button>
+                <button type="button" onclick="openAdminAuthModal()" class="text-crimson hover:text-rose-400 font-gaming font-semibold uppercase tracking-wider">
+                    <i class="fa-solid fa-shield-halved mr-1"></i> Admin Panel
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== MAIN APPLICATION SHELL ==================== -->
+    <div id="main-app" class="hidden max-w-5xl mx-auto">
+
+        <!-- TOP STICKY HEADER -->
+        <header class="sticky top-0 z-40 bg-[#08090d]/95 backdrop-blur-xl border-b border-white/10 px-4 py-3">
+            <div class="flex items-center justify-between gap-2">
+                <!-- Logo & Welcome -->
+                <div class="flex items-center gap-2.5">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-crimson via-orange-500 to-amber-400 p-[2px] shadow-lg shadow-crimson/20">
+                        <div class="w-full h-full bg-obsidian rounded-[10px] flex items-center justify-center">
+                            <svg class="w-6 h-6 text-amber-400" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 2C12 2 7 7.5 7 12.5C7 15.5 9.2 18 12 18C14.8 18 17 15.5 17 12.5C17 10.8 16.2 9.1 15.2 7.8C15.2 9.5 14 10.5 13 10.5C14.2 8.2 13.5 4.5 12 2ZM12 22C7.58 22 4 18.42 4 14C4 12.5 4.4 11.1 5.1 9.9C4.4 11.3 4 12.8 4 14.5C4 18.64 7.36 22 11.5 22H12.5C16.64 22 20 18.64 20 14.5C20 12.8 19.6 11.3 18.9 9.9C19.6 11.1 20 12.5 20 14C20 18.42 16.42 22 12 22Z"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-1.5">
+                            <span class="font-display font-extrabold text-sm sm:text-base tracking-wide text-white">IGNOXPLAYZZ</span>
+                            <span class="px-1.5 py-0.5 text-[10px] font-display font-bold bg-crimson/20 text-crimson border border-crimson/40 rounded">eSports</span>
+                        </div>
+                        <p class="text-[11px] text-amber-400 font-gaming font-semibold tracking-wide">Welcome to IGNOXPLAYZZ eSports!</p>
+                    </div>
+                </div>
+
+                <!-- Right Controls: IGNO Wallet Pill + Admin Button -->
+                <div class="flex items-center gap-2">
+                    <button onclick="navigate('wallet')" class="flex items-center gap-2 bg-gradient-to-r from-amber-500/20 to-orange-600/20 border border-amber-500/40 hover:border-amber-400 px-3 py-1.5 rounded-xl transition">
+                        <!-- Custom IGNO Coin SVG Icon -->
+                        <svg class="w-5 h-5 shrink-0" viewBox="0 0 32 32">
+                            <defs>
+                                <linearGradient id="ignoGold" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stop-color="#ffe259"/>
+                                    <stop offset="100%" stop-color="#ffa751"/>
+                                </linearGradient>
+                            </defs>
+                            <circle cx="16" cy="16" r="14" fill="url(#ignoGold)" stroke="#b45309" stroke-width="2"/>
+                            <circle cx="16" cy="16" r="10" fill="none" stroke="#92400e" stroke-width="1" stroke-dasharray="2 2"/>
+                            <text x="16" y="21" text-anchor="middle" font-family="Orbitron, sans-serif" font-weight="900" font-size="13" fill="#451a03">I</text>
+                        </svg>
+                        <div class="text-left">
+                            <div class="text-[9px] uppercase font-gaming text-amber-300 leading-none">IGNO Coins</div>
+                            <div id="header-wallet-balance" class="font-display font-bold text-sm text-white leading-tight">0</div>
+                        </div>
+                    </button>
+
+                    <button onclick="openAdminAuthModal()" title="Organizer Admin Panel" class="w-9 h-9 rounded-xl bg-crimson/20 border border-crimson/40 text-crimson hover:bg-crimson hover:text-white flex items-center justify-center transition">
+                        <i class="fa-solid fa-shield-halved text-sm"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- NAVIGATION TABS BAR (Tournaments, Wallet, History, Referral, Rules, Support, Profile) -->
+            <nav class="flex gap-1.5 mt-3 overflow-x-auto no-scrollbar pt-1">
+                <button onclick="navigate('tournaments')" id="nav-btn-tournaments" class="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-gaming font-bold uppercase tracking-wider bg-gradient-to-r from-crimson to-orange-500 text-white whitespace-nowrap shadow">
+                    <i class="fa-solid fa-trophy"></i> Tournaments
+                </button>
+                <button onclick="navigate('wallet')" id="nav-btn-wallet" class="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-gaming font-bold uppercase tracking-wider text-gray-400 hover:text-white whitespace-nowrap">
+                    <i class="fa-solid
